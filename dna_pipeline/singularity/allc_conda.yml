@@ -1,0 +1,43 @@
+name: allc
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.8
+  - pip
+  - anndata
+  - biopython
+  - dask
+  - numba
+  - htslib>=1.9
+  - jupyter
+  - jupyter_contrib_nbextensions
+  - leidenalg
+  - natsort
+  - netCDF4
+  - networkx
+  - opentsne
+  - plotly
+  - pybedtools
+  - pyBigWig
+  - pynndescent
+  - pysam
+  - pytables
+  - scanpy
+  - scikit-learn
+  - seaborn
+  - statsmodels
+  - xarray
+  - yaml
+  - zarr
+  - samtools
+  - bedtools
+  - numpy
+  - pandas
+  - matplotlib
+  - pip:
+      - papermill
+      - imblearn
+      - allcools==1.0.22
+      - methylpy

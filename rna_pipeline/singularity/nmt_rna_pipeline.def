@@ -1,0 +1,88 @@
+Bootstrap: docker
+From: ubuntu:22.04
+Stage: spython-base
+
+%files
+nmt_rna_conda.yml /
+../bin/create_kb_batch.sh /
+../bin/collect.RNAalign.nf.py /
+
+%post
+TZ=Europe/Brussels
+export DEBIAN_FRONTEND=noninteractive
+echo $TZ > /etc/timezone
+ln -sf /usr/share/zoneinfo/$TZ /etc/localtime
+apt-get update && apt-get install -y tzdata
+dpkg-reconfigure --frontend noninteractive tzdata
+
+# install apt-utils to avoid debconf messages
+apt-get install -y apt-utils
+
+# install GNU Parallel
+apt-get install -y parallel
+
+apt-get upgrade -y && apt-get install -y wget  && apt-get install --assume-yes build-essential && apt-get install --assume-yes libncurses5-dev libncursesw5-dev zlib1g-dev libbz2-dev libclang-dev liblzma-dev libcurl4-openssl-dev unzip && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# install Samtools
+wget https://github.com/samtools/samtools/releases/download/1.20/samtools-1.20.tar.bz2
+tar xjf samtools-1.20.tar.bz2
+cd samtools-1.20
+./configure
+make
+make install
+cd /
+rm -rf samtools-1.20 samtools-1.20.tar.bz2
+
+# install alignment software
+cd /
+wget https://github.com/alexdobin/STAR/archive/2.7.3a.tar.gz && tar -xzf 2.7.3a.tar.gz && cd 2.7.3a/source && make STAR && mv STAR /usr/local/bin/ && cd /
+wget https://github.com/deweylab/RSEM/archive/refs/tags/v1.3.3.tar.gz && tar -xvzf v1.3.3.tar.gz && cd RSEM-1.3.3 && make && make install && cd / && ln -s /usr/local/RSEM-1.3.3/rsem-* /usr/local/bin/
+
+# install QualiMap
+wget https://bitbucket.org/kokonech/qualimap/downloads/qualimap_v2.2.1.zip && unzip qualimap_v2.2.1.zip && mv qualimap_v2.2.1 /usr/local/qualimap && cd / && ln -s /usr/local/qualimap/qualimap /usr/local/bin/qualimap
+
+# remove redundant files
+rm -rf STAR-2.7.10b 2.7.10b.tar.gz RSEM-1.3.3 v1.3.3.tar.gz qualimap_v2.2.1.zip
+
+mkdir /etc/ssl/certs/java
+mkdir -p /opt/jdk
+wget -O /tmp/jdk-21.0.2_linux-x64_bin.tar.gz https://download.oracle.com/java/21/latest/jdk-21_linux-x64_bin.tar.gz
+tar -xzf /tmp/jdk-21.0.2_linux-x64_bin.tar.gz -C /opt/jdk
+
+mkdir -p /opt/picard
+wget -O /opt/picard/picard.jar https://github.com/broadinstitute/picard/releases/latest/download/picard.jar
+mkdir -p /tmp/fontconfig-cache
+echo 'export JAVA_HOME=/opt/jdk/jdk-21.0.2' >> /environment
+echo 'export PICARD_JAR=/opt/picard/picard.jar' >> /environment
+echo 'export FONTCONFIG_PATH=/tmp/fontconfig-cache' >> /environment
+echo 'export FONTCONFIG_FILE=/tmp/fontconfig-cache/fonts.conf' >> /environment
+
+chmod -R 777 /opt && chmod 777 /
+
+# conda environment
+CONDA_DIR=/opt/conda
+wget 'https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh' && yes Yes | bash Miniconda3-latest-Linux-x86_64.sh -b -p $CONDA_DIR
+export PATH=$CONDA_DIR/bin:$PATH
+conda update -n base -c defaults conda
+conda init bash
+cd /
+conda env create -f nmt_rna_conda.yml && conda clean -afy
+
+%environment
+export DEBIAN_FRONTEND=noninteractive
+export PATH=/usr/local/bin:$PATH
+export CONDA_DIR=/opt/conda
+export PATH=$CONDA_DIR/bin:$PATH
+export JAVA_HOME=/opt/jdk/jdk-21.0.2
+export PATH=$JAVA_HOME/bin:$PATH
+export PICARD_JAR=/opt/picard/picard.jar
+export FONTCONFIG_PATH=/tmp/fontconfig-cache
+export FONTCONFIG_FILE=/tmp/fontconfig-cache/fonts.conf
+source activate nmt_env
+export TZ=Europe/Brussels
+
+%runscript
+exec /bin/bash "$@"
+
+%startscript
+exec /bin/bash "$@"

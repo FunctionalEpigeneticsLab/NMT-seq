@@ -1,0 +1,25 @@
+name: nmt_env
+channels:
+  - defaults
+  - bioconda
+  - conda-forge
+dependencies:
+  - python=3.12
+  - fastqc
+  - multiqc
+  - r-base
+  - r-essentials
+  - r-ggplot2
+  - subread
+  - trim-galore
+  - tabix
+  - bedtools
+  - bc
+  - psutil
+  - zarr
+  - dask
+  - joblib
+  - kb-python
+  - pandas
+  - numpy
+  - matplotlib

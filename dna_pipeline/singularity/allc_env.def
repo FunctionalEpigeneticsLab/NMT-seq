@@ -1,0 +1,31 @@
+BootStrap: docker
+From: ubuntu:22.04
+
+%files
+    allc_conda.yml /
+    ../bin/extract_mC_stat_from_allc.py /
+    ../bin/generate_allc_summary.py /
+    ../bin/generate_allc_table.sh /
+    ../bin/generate_allc_table_scimet.sh /
+
+%post
+    apt-get update && apt-get install -y wget bzip2 curl git
+
+    CONDA_DIR=/opt/conda
+    wget 'https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh'
+    bash Miniconda3-latest-Linux-x86_64.sh -b -p $CONDA_DIR
+    export PATH=$CONDA_DIR/bin:$PATH
+    conda update -n base -c defaults conda
+
+    conda install mamba -n base -c conda-forge
+
+    mamba env create -f /allc_conda.yml
+    conda clean -afy
+
+%environment
+    export PATH=/opt/conda/bin:$PATH
+    source activate allc
+
+%runscript
+    exec bash -c "source activate allc && exec \$@"
+
