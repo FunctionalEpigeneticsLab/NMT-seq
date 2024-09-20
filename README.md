@@ -1,13 +1,13 @@
 # Nextflow pipeline for data processing of scNMT-seq and sciMET
 The cDNA and gDNA library processing are independent pipelines located in the folders `rna_pipeline` and `dna_pipeline`. The gDNA pipeline includes processing for both single-cell/single-nucleus NMT-seq and sciMET, as they share major processes.
 
-### Prerequisites
+## Prerequisites
 - Ensure that `Nextflow` is installed and accessible in your system's PATH.
 - Place `main.nf` and `nextflow.config` in your run folder e.g. a directory for processing data from a specific experiment batch.
 - To build Singularity image: use the `def` files in the `singularity` folder.
 - Modify `nextflow.config`: adjust the parameters listed to suit your own need; change the reference genome files to their location; set `singularity.cacheDir` to your own scratch folder with sufficient space; replace `accessToken` with your personal Nextflow Tower token for workflow monitoring; change the Singularity image (sif file) locations correspondingly to where your containers have been built and stored.
 
-### Running the pipeline
+## Running the pipeline
 For NMT-seq (use `rna_pipeline` and `dna_pipeline` for cDNA and gDNA libraries, respectively):
 ```shell
 nohup nextflow run main.nf > pipeline.log 2>&1 &
@@ -18,10 +18,10 @@ For sciMET (`dna_pipeline`):
 nextflow run main.nf -entry pipeline_sciMET > pipeline.log 2>&1 &
 ```
 
-### Key steps and parameters of data processing
+## Key steps and parameters of data processing
 Overview of workflows:
 ![nmt_flowchart](https://github.com/user-attachments/assets/41414d4f-7b92-4596-930a-cd9af254e69e)
-#### 1. cDNA (Smart-seq2) libraries
+### 1. cDNA (Smart-seq2) libraries
 - **Raw reads QC**: generate `FastQC` & `MultiQC` report. Set `run_fastqc=false` if you do not need this.
 
 - **Trimming**: trim off adapters and low-quality bases from the 3' ends by `TrimGalore`, and filter by read length of 36 bp.
@@ -39,7 +39,7 @@ Overview of workflows:
   python rna_pipeline/bin/collect.RNAalign.nf.py
   ```
 
-#### 2. gDNA libraries (DNA methylation & chromatin accessibility)
+### 2. gDNA libraries (DNA methylation & chromatin accessibility)
 - **Raw reads QC**: generate `FastQC` & `MultiQC` report. Set `run_fastqc=false` if you do not need this.
 
 - **Trimming of scNMT-seq**: use `TrimGalore` to perform adapter and base quality trimming, hard-clip 20 bp from the 5' end and 7 bp from the 3' end, and filter by read length of 36 bp. 
