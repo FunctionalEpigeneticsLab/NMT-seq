@@ -78,3 +78,9 @@ Overview of workflows:
     wait
     python dna_pipeline/bin/generate_metadata.allCells.py --input_dir summary --out summary/metadata.allCells.csv
     ```
+
+## Further aspects of improvements to be done (before end of 2024):
+- [ ] Directly plot saturation curve per library (NMT)
+- [ ] Add troubleshooting: contamination profile
+- [ ] Add standalone pipeline for sample demultiplexing (after user-directed QC filtering of nuclei)
+- [ ] Add standalone pipeline for MethSCAn processes and converting mC matrices to more storage-efficient h5 files
